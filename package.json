@@ -1,17 +1,23 @@
 {
-  "name": "ts-library-template",
+  "name": "typed-vuex-definer",
   "version": "0.0.1",
   "main": "dist/index.js",
-  "repository": "https://github.com/c6h4clch3/ts-library-template.git",
+  "repository": "https://github.com/c6h4clch3/typed-vuex-definer.git",
   "author": "c6h4clch3 <c6h4clch3@gmail.com>",
   "license": "MIT",
   "private": false,
   "devDependencies": {
     "@types/jest": "^24.0.18",
+    "@types/webpack-env": "^1.14.0",
     "jest": "^24.9.0",
     "ts-jest": "^24.0.2",
     "tsc": "^1.20150623.0",
     "typescript": "^3.5.3",
+    "vue": "^2.6.10",
     "webpack-env": "^0.8.0"
+  },
+  "description": "Vuex's store option generator with TypeScript.",
+  "dependencies": {
+    "vuex": "^3.1.1"
   }
 }
