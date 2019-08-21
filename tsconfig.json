@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "declaration": true,
+    "pretty": true,
+    "newLine": "lf",
+    "outDir": "dist",
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+    "types": ["webpack-env"]
+  },
+  "include": ["src/**/*.ts"]
+}
