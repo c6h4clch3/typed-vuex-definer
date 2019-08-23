@@ -2,15 +2,28 @@ import { MutationPayload, MutationDefiner } from './mutations';
 import { GetterDefiner } from './getters';
 import { Promisable } from '../utils/promisable';
 
-type CommitPayload<M extends MutationDefiner<any>, K extends keyof M> = {
-  path: K;
-} & (NonNullable<MutationPayload<M[K]>> extends never
-  ? {}
-  : { payload: MutationPayload<M[K]> });
+type CommitPayload<
+  M extends MutationDefiner<any>,
+  K extends keyof M
+> = NonNullable<MutationPayload<M[K]>> extends never
+  ? []
+  : [MutationPayload<M[K]>];
+type _CommitKeyWithPayload<
+  M extends MutationDefiner<any>,
+  K extends keyof M
+> = NonNullable<MutationPayload<M[K]>> extends never ? never : K;
+type CommitKeyWithPayload<
+  M extends MutationDefiner<any>,
+  K extends keyof M = keyof M
+> = K extends string ? _CommitKeyWithPayload<M, K> : never; // Union 型の分配を利用する
 
-type Commit<S, M extends MutationDefiner<S> = {}> = <K extends keyof M>(
-  commitObj: CommitPayload<M, K>
-) => void;
+interface Commit<S, M extends MutationDefiner<S>> {
+  <K extends CommitKeyWithPayload<M>>(
+    type: K,
+    payload: MutationPayload<M[K]>
+  ): Promise<void>;
+  <K extends keyof M>(type: K, ...payload: CommitPayload<M, K>): Promise<void>;
+}
 
 type Getter<G extends GetterDefiner<any>> = {
   [K in keyof G]: ReturnType<G[K]>

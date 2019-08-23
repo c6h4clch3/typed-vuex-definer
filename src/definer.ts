@@ -1,16 +1,16 @@
 import { MutationDefiner } from './modules/mutations';
 import { GetterDefiner } from './modules/getters';
-import { ActionDefiner } from './modules/actions';
+import { ActionDefiner, ActionMethod, ActionContext } from './modules/actions';
 import { OrchestratorDefiner } from './modules/orchestrator';
 import { ModuleDefiner, ModuleTree } from './modules/module';
-import { Store } from 'vuex';
+import { Store, ActionContext as VuexActionContext } from 'vuex';
 
 type ModuleDefinition<
   S,
   M extends MutationDefiner<S>,
   G extends GetterDefiner<S>,
   A extends ActionDefiner<S, M, G>,
-  O extends OrchestratorDefiner<S, A>
+  O extends OrchestratorDefiner<S, G, A>
 > = Required<ModuleDefiner<S, M, G, A, O>>;
 
 class StoreBuilder<
@@ -18,7 +18,7 @@ class StoreBuilder<
   M extends MutationDefiner<S>,
   G extends GetterDefiner<S>,
   A extends ActionDefiner<S, M, G>,
-  O extends OrchestratorDefiner<S, A>
+  O extends OrchestratorDefiner<S, G, A>
 > {
   private readonly definition: ModuleDefinition<S, M, G, A, O>;
   constructor(mod: ModuleDefiner<S, M, G, A, O>) {
@@ -66,9 +66,9 @@ class StoreBuilder<
     });
   }
 
-  public defineOrchestrators<Orchestrators extends OrchestratorDefiner<S, A>>(
-    orchestrators: Orchestrators
-  ) {
+  public defineOrchestrators<
+    Orchestrators extends OrchestratorDefiner<S, G, A>
+  >(orchestrators: Orchestrators) {
     return new StoreBuilder<S, M, G, A, O & Orchestrators>({
       ...this.definition,
       orchestrators: {
@@ -96,33 +96,35 @@ const initState = <S extends {}>(state: S) => {
 };
 
 const modules = initState({
-  a: 'Hello, World!'
+  name: 'World'
 })
   .defineMutations({
     mutateA(state, payload: string) {
-      state.a = payload;
+      state.name = payload;
     },
     reset(state) {
-      state.a = 'Hello, World!';
+      state.name = 'World!';
     }
   })
   .defineGetters({
     lastLetter(state) {
-      return state.a.substr(-1);
+      return state.name.substr(-1);
+    },
+    sayHello(state) {
+      return `Hello, ${state.name}!`;
     }
   })
   .defineActions({
     triggerA(context, payload: string) {
-      console.log(context.getters.lastLetter);
-      context.commit({ path: 'mutateA', payload });
+      context.commit('mutateA', payload);
     },
     triggerReset({ commit }) {
-      commit({ path: 'reset' });
+      commit('reset');
     }
   })
   .defineOrchestrators({
-    cleans(state, dispatch) {
-      dispatch({ path: 'triggerReset' });
-      dispatch({ path: 'triggerA', payload: '' });
+    async cleans({ dispatch }, payload: string) {
+      await dispatch('triggerReset');
+      await dispatch('triggerA', payload);
     }
   });
