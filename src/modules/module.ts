@@ -10,8 +10,8 @@ export type ModuleDefiner<
   S,
   M extends MutationDefiner<S>,
   G extends GetterDefiner<S>,
-  A extends ActionDefiner<M, G>,
-  O extends OrchestratorDefiner<A>
+  A extends ActionDefiner<S, M, G>,
+  O extends OrchestratorDefiner<S, A>
 > = {
   state?: StateDefiner<S>;
   getters?: G;
@@ -25,8 +25,8 @@ type ModuleOptionMutations<M extends MutationDefiner<any>> = M;
 type ModuleOptionGetters<G extends GetterDefiner<any>> = G;
 type ModuleOptionActions<
   S,
-  A extends ActionDefiner<any, any>,
-  O extends OrchestratorDefiner<A>
+  A extends ActionDefiner<any, any, any>,
+  O extends OrchestratorDefiner<any, A>
 > = {
   [AK in keyof A]: (
     context: Vuex.ActionContext<S, unknown>,
@@ -43,8 +43,8 @@ export type ModuleOption<
   S,
   M extends MutationDefiner<S>,
   G extends GetterDefiner<S>,
-  A extends ActionDefiner<M, G>,
-  O extends OrchestratorDefiner<A>
+  A extends ActionDefiner<S, M, G>,
+  O extends OrchestratorDefiner<S, A>
 > = {
   state: StateDefiner<S>;
   getters: ModuleOptionGetters<G>;

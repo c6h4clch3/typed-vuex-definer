@@ -1,7 +1,6 @@
 import { MutationPayload, MutationDefiner } from './mutations';
 import { GetterDefiner } from './getters';
 import { Promisable } from '../utils/promisable';
-import { Mutation } from 'vuex';
 
 type CommitPayload<M extends MutationDefiner<any>, K extends keyof M> = {
   path: K;
@@ -9,7 +8,7 @@ type CommitPayload<M extends MutationDefiner<any>, K extends keyof M> = {
   ? {}
   : { payload: MutationPayload<M[K]> });
 
-type Commit<M extends MutationDefiner<any> = {}> = <K extends keyof M>(
+type Commit<S, M extends MutationDefiner<S> = {}> = <K extends keyof M>(
   commitObj: CommitPayload<M, K>
 ) => void;
 
@@ -18,22 +17,25 @@ type Getter<G extends GetterDefiner<any>> = {
 };
 
 export type ActionContext<
-  M extends MutationDefiner<any>,
-  G extends GetterDefiner<any>
+  S,
+  M extends MutationDefiner<S>,
+  G extends GetterDefiner<S>
 > = {
-  state: M extends MutationDefiner<infer S> ? S : never;
-  commit: Commit<M>;
+  state: S;
+  commit: Commit<S, M>;
   getters: Getter<G>;
 };
 export type ActionMethod<
+  S,
   M extends MutationDefiner<any>,
   G extends GetterDefiner<any>
-> = (context: ActionContext<M, G>, payload?: any) => Promisable<void>;
-export type ActionPayload<AM extends ActionMethod<any, any>> = Parameters<
+> = (context: ActionContext<S, M, G>, payload?: any) => Promisable<void>;
+export type ActionPayload<AM extends ActionMethod<any, any, any>> = Parameters<
   AM
 >[1];
 
 export type ActionDefiner<
+  S,
   M extends MutationDefiner<any>,
   G extends GetterDefiner<any>
-> = { [key: string]: ActionMethod<M, G> };
+> = { [key: string]: ActionMethod<S, M, G> };

@@ -2,23 +2,23 @@ import { MutationDefiner } from './modules/mutations';
 import { GetterDefiner } from './modules/getters';
 import { ActionDefiner } from './modules/actions';
 import { OrchestratorDefiner } from './modules/orchestrator';
-import { ModuleDefiner, ModuleTree, ModuleOption } from './modules/module';
+import { ModuleDefiner, ModuleTree } from './modules/module';
 import { Store } from 'vuex';
 
 type ModuleDefinition<
   S,
   M extends MutationDefiner<S>,
   G extends GetterDefiner<S>,
-  A extends ActionDefiner<M, G>,
-  O extends OrchestratorDefiner<A>
+  A extends ActionDefiner<S, M, G>,
+  O extends OrchestratorDefiner<S, A>
 > = Required<ModuleDefiner<S, M, G, A, O>>;
 
 class StoreBuilder<
   S,
   M extends MutationDefiner<S>,
   G extends GetterDefiner<S>,
-  A extends ActionDefiner<M, G>,
-  O extends OrchestratorDefiner<A>
+  A extends ActionDefiner<S, M, G>,
+  O extends OrchestratorDefiner<S, A>
 > {
   private readonly definition: ModuleDefinition<S, M, G, A, O>;
   constructor(mod: ModuleDefiner<S, M, G, A, O>) {
@@ -54,7 +54,9 @@ class StoreBuilder<
     });
   }
 
-  public defineActions<Actions extends ActionDefiner<M, G>>(actions: Actions) {
+  public defineActions<Actions extends ActionDefiner<S, M, G>>(
+    actions: Actions
+  ) {
     return new StoreBuilder<S, M, G, A & Actions, O>({
       ...this.definition,
       actions: {
@@ -64,7 +66,7 @@ class StoreBuilder<
     });
   }
 
-  public defineOrchestrators<Orchestrators extends OrchestratorDefiner<A>>(
+  public defineOrchestrators<Orchestrators extends OrchestratorDefiner<S, A>>(
     orchestrators: Orchestrators
   ) {
     return new StoreBuilder<S, M, G, A, O & Orchestrators>({
