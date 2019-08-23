@@ -21,8 +21,8 @@ interface Commit<S, M extends MutationDefiner<S>> {
   <K extends CommitKeyWithPayload<M>>(
     type: K,
     payload: MutationPayload<M[K]>
-  ): Promise<void>;
-  <K extends keyof M>(type: K, ...payload: CommitPayload<M, K>): Promise<void>;
+  ): void;
+  <K extends keyof M>(type: K, ...payload: CommitPayload<M, K>): void;
 }
 
 type Getter<G extends GetterDefiner<any>> = {
