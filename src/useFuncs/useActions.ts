@@ -34,12 +34,12 @@ export interface ActionBuilder<
   };
 }
 export const useActions = (
-  orchestrators: Record<string, ActionMethod<any, any, any>>
+  actions: Record<string, ActionMethod<any, any, any>>
 ) => {
   return {
     actions: {
-      actions: Object.entries(orchestrators).reduce(
-        (memo, [key, orch]) => {
+      actions: Object.entries(actions).reduce(
+        (memo, [key, act]) => {
           const actionMethod = async (
             { state, getters, commit }: Vuex.ActionContext<any, {}>,
             payload: any
@@ -49,7 +49,7 @@ export const useActions = (
               getters,
               commit
             };
-            return orch(context, payload);
+            return act(context, payload);
           };
 
           return {
